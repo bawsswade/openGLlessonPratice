@@ -139,8 +139,8 @@ const float vertexData[] =
 {
 	1024 / 2.0, 720 / 2.0 + 10.0f, 0.0f, 1.0f,
 	1024 / 2.0 - 10.0f, 720 / 2.0 - 10.0f, 0.0f, 1.0f,
-	1024 / 2.0 + 10.0f, 720 / 2.0 - 10.0f, 0.0f, 1.0f,
 	1024 / 2.0, 720 / 2.0 - 30.0f, 0.0f, 1.0f,
+	1024 / 2.0 + 10.0f, 720 / 2.0 - 10.0f, 0.0f, 1.0f,
 	1.0f, 0.0f, 0.0f, 1.0f,
 	0.0f, 1.0f, 0.0f, 1.0f,
 	0.0f, 0.0f, 1.0f, 1.0f,
@@ -178,7 +178,7 @@ int main()
 		return -1;
 	}
 
-	Vertex* myShape = new Vertex[3];
+	/*Vertex* myShape = new Vertex[3];
 	myShape[0].fPositions[0] = 0.0f;
 	myShape[0].fPositions[1] = 0.03f;
 	myShape[1].fPositions[0] = -0.025f;
@@ -193,24 +193,39 @@ int main()
 		myShape[i].fColours[1] = 0.0f;
 		myShape[i].fColours[2] = 1.0f;
 		myShape[i].fColours[3] = 1.0f;
-	}
+	}*/
 
 
-	GLuint VBO;
-
+	GLuint VBO, IBO;
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &IBO);
 
 	if (VBO != 0)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*3, NULL, GL_STATIC_DRAW);
+		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*3, NULL, GL_STATIC_DRAW);
 
+		////allocate space on graphics card
+		//GLvoid* vBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+		//// copy data to graphics card
+		//memcpy(vBuffer, myShape, sizeof(Vertex)*3);
+		//glUnmapBuffer(GL_ARRAY_BUFFER);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	if (IBO != 0)
+	{
+		//bind IBO
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		//allocate space for index info on the graphics card
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+		//unbind
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 
 
 	//create shader program
@@ -224,7 +239,7 @@ int main()
 
 
 
-	//loop until window cloases
+	//loop until window closes
 	while (!glfwWindowShouldClose(window))
 	{
 		//DRAW SHIT!
@@ -234,7 +249,8 @@ int main()
 		//enable shaders
 		glUseProgram(uiProgramFlat);
 
-		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 		//send our orthographic projection info to the shader
 		glUniformMatrix4fv(MatrixIDFlat, 1, GL_FALSE, orthographicProjection);
@@ -242,18 +258,17 @@ int main()
 		//enable the vertex array state, since we're sending in an array of vertices
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		//glEnableVertexAttribArray(2);
 
 		//specify where our vertex array is, how many components each vertex has, 
 		//the data type of each component and whether the data is normalised or not
-		//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, vertexPositions);
-		//glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, vertexColours);
-
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float)*16));
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float)*4, 0);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float)*4, (void*)(sizeof(float)*16));
 
 		//draw to the screen
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glDrawArrays(GL_POLYGON, 0, 4);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		//spaw front and back buffers
 		glfwSwapBuffers(window);
