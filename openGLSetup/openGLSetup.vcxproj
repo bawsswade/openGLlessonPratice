@@ -39,8 +39,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\include;$(SolutionDir)libs\glew-1.11.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\lib-msvc120;$(SolutionDir)libs\glew-1.11.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\include;$(SolutionDir)libs\glew-1.11.0\include;C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\Simple OpenGL Image Library\src\SOIL;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\lib-msvc120;$(SolutionDir)libs\glew-1.11.0\lib\Release\Win32;C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\Simple OpenGL Image Library\projects\VC9\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -51,8 +51,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\wade.gushikuma\Documents\GitHub\openGLSetup\libs\glew-1.11.0\lib\Release\Win32;C:\Users\wade.gushikuma\Documents\GitHub\openGLSetup\libs\glfw-3.0.4.bin.WIN32\lib-msvc110;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\wade.gushikuma\Documents\GitHub\openGLSetup\libs\glew-1.11.0\lib\Release\Win32;C:\Users\wade.gushikuma\Documents\GitHub\openGLSetup\libs\glfw-3.0.4.bin.WIN32\lib-msvc110;C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\Simple OpenGL Image Library\projects\VC9\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -76,6 +76,12 @@
     <None Include="FlatFragmentShader.glsl" />
     <None Include="TexturedFragmentShader.glsl" />
     <None Include="VertexShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Asteroid.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Stars.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
