@@ -71,6 +71,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="Stars.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FlatFragmentShader.glsl" />

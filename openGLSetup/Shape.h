@@ -5,12 +5,7 @@ class Shape
 {
 public:
 	Shape();
-	struct Vertex
-	{
-		float pos[4];
-		float color[4];
-		float uv[2];
-	};
+	Shape(int num);
 	~Shape();
 private:
 };
