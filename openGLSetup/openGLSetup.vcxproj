@@ -39,7 +39,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\include;$(SolutionDir)libs\glew-1.11.0\include;C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\Simple OpenGL Image Library\src\SOIL;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\glm;$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\include;$(SolutionDir)libs\glew-1.11.0\include;C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\Simple OpenGL Image Library\src\SOIL;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)libs\glfw-3.0.4.bin.WIN32\lib-msvc120;$(SolutionDir)libs\glew-1.11.0\lib\Release\Win32;C:\Users\wade.gushikuma\Documents\GitHub\openGLlessonPratice\libs\Simple OpenGL Image Library\projects\VC9\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

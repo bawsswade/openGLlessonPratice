@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <GLFW\glfw3.h>
+#include <glm.hpp>
 #include <SOIL.h>
 #include <iostream>
 
@@ -8,6 +9,9 @@
 #include <string>
 #include <fstream>
 #include "Stars.h"
+
+typedef glm::vec4 vec4;
+typedef unsigned int uint;
 
 //GLuint CreateShader(GLenum a_eShaderType, const char *a_strShaderFile)
 //{
@@ -210,14 +214,16 @@ int main()
 		return -1;
 	}
 
-	Vertex* myShape = new Vertex[3];
-	myShape[0].fPositions[0] = 1024 / 2.0;
-	myShape[0].fPositions[1] = 720 / 2.0 + 10;
-	myShape[1].fPositions[0] = 1024 / 2.0 - 10.0;
-	myShape[1].fPositions[1] = 720 / 2.0 - 10.0f;
-	myShape[2].fPositions[0] = 1024 / 2.0 + 10.0f;
-	myShape[2].fPositions[1] = 720 / 2.0 - 10.0f;
-	for (int i = 0; i < 3; i++)
+	Vertex* myShape = new Vertex[4];
+	myShape[0].fPositions[0] = 1024 / 2.0 + 100.0f;    //top right
+	myShape[0].fPositions[1] = 720 / 2.0 + 100.0f;
+	myShape[1].fPositions[0] = 1024 / 2.0 + 100.0;  //bottom right
+	myShape[1].fPositions[1] = 720 / 2.0 - 100.0f;
+	myShape[2].fPositions[0] = 1024 / 2.0 - 100.0f; //bottom left
+	myShape[2].fPositions[1] = 720 / 2.0 - 100.0f;
+	myShape[3].fPositions[0] = 1024 / 2.0 - 100.0f; //top left
+	myShape[3].fPositions[1] = 720 / 2.0 + 100.0f;
+	for (int i = 0; i < 4; i++)
 	{
 		myShape[i].fPositions[2] = 0.0f;
 		myShape[i].fPositions[3] = 1.0f;
@@ -227,15 +233,17 @@ int main()
 		myShape[i].fColours[3] = 1.0f;
 	}
 	//set up the UVs
-	myShape[0].fUVs[0] = 0.5f; //top of the triangle
+	myShape[0].fUVs[0] = 1.0f; //top right
 	myShape[0].fUVs[1] = 1.0f;
-	myShape[1].fUVs[0] = 0.0f; //bottom left
+	myShape[1].fUVs[0] = 1.0f; //bottom right
 	myShape[1].fUVs[1] = 0.0f;
-	myShape[2].fUVs[0] = 1.0f; //bottom right
+	myShape[2].fUVs[0] = 0.0f; //bottom left
 	myShape[2].fUVs[1] = 0.0f;
+	myShape[3].fUVs[0] = 0.0f; //top left
+	myShape[3].fUVs[1] = 1.0f;
 
-	srand(time(NULL));
-	Stars bg(10);
+	//srand(time(NULL));
+	//Stars bg(10);
 	
 	GLuint VBO, IBO;
 	glGenBuffers(1, &VBO);
@@ -244,12 +252,12 @@ int main()
 	if (VBO != 0)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*3, NULL, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*4, NULL, GL_STATIC_DRAW);
 
 		//allocate space on graphics card
 		GLvoid* vBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 		// copy data to graphics card
-		memcpy(vBuffer, myShape, sizeof(Vertex)*3);
+		memcpy(vBuffer, myShape, sizeof(Vertex)*4);
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -263,21 +271,21 @@ int main()
 		//bind IBO
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		//allocate space for index info on the graphics card
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * sizeof(char), NULL, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(char), NULL, GL_STATIC_DRAW);
 		//get pointer to newly allocated space on the graphics card
 		GLvoid* iBuffer = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 		//specify the order we'd like to draw our vertices.
 		//In this case they are in sequential order
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			((char*)iBuffer)[i] = i;
+			((char*)iBuffer)[i] = i; 
 		}
 		//unmap and unbind
 		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	int width = 50, height = 50, bpp = 4;
+	int width = 50, height = 50, bpp = 4;    
 	GLuint uiTextureId = loadTexture("smile.png", width, height, bpp);
 
 	//create shader program
@@ -287,7 +295,7 @@ int main()
 	GLuint uiProgramTextured = CreateProgram("VertexShader.glsl", "TexturedFragmentShader.glsl");
 
 	//find the position of the matrix variable in the shader so we can send info there later
-	GLuint MatrixIDFlat = glGetUniformLocation(uiProgramTextured, "MVP");
+	GLuint MatrixIDFlat = glGetUniformLocation(uiProgramFlat, "MVP");
 
 	//set up the mapping of the screen to pixel co-ordinates. Try changing these values to see what happens.
 	float *orthographicProjection = getOrtho(0, 1024, 0, 720, 0, 100);
@@ -313,7 +321,7 @@ int main()
 		// bindings: vbo, ibo, texture
 		glBindTexture(GL_TEXTURE_2D, uiTextureId);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		
 		//specify where our vertex array is, how many components each vertex has, 
 		//the data type of each component and whether the data is normalised or not
@@ -328,14 +336,14 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
 			//move forward
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 4; i++)
 			{
 				myShape[i].fPositions[1] += 0.5f;
 			}
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			GLvoid* vBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 			//copy data to graphics card
-			memcpy(vBuffer, myShape, sizeof(Vertex)* 3);
+			memcpy(vBuffer, myShape, sizeof(Vertex)* 4);
 			//unmap and unbind buffer
 			glUnmapBuffer(GL_ARRAY_BUFFER);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -343,9 +351,9 @@ int main()
 
 
 		//draw to the screen
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
-		bg.Draw();
+		glDrawArrays(GL_QUADS, 0, 4);
+		//glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, NULL);
+		//bg.Draw();
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
