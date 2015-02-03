@@ -2,6 +2,7 @@
 #include <GL/wglew.h>
 #include <GLFW\glfw3.h>
 #include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
 #include <SOIL.h>
 #include <iostream>
 
@@ -11,8 +12,16 @@
 #include "Stars.h"
 
 typedef glm::vec4 vec4;
+typedef glm::vec2 vec2;
 typedef unsigned int uint;
 
+struct Vertex
+{
+	float fPositions[4];
+	//vec4 vPositions;
+	float fColours[4];
+	float fUVs[2];
+};
 //GLuint CreateShader(GLenum a_eShaderType, const char *a_strShaderFile)
 //{
 //	std::string strShaderCode;
@@ -125,6 +134,10 @@ typedef unsigned int uint;
 //	toReturn[15] = 1;
 //	return toReturn;
 //}
+vec4* position = new vec4[4];
+vec2* UVs = new vec2[4];
+Vertex* myShape = new Vertex[4];
+GLuint VBO, IBO;
 
 unsigned int loadTexture(const char* a_pFilename, int & a_iWidth, int & a_iHeight, int & a_iBPP)
 {
@@ -182,12 +195,55 @@ unsigned int loadTexture(const char* a_pFilename, int & a_iWidth, int & a_iHeigh
 //	1.0f, 1.0f, 1.0f, 1.0f,
 //};
 
-struct Vertex
+
+
+void SetUVs(uint spriteId, float topX, float topY, float bottomX, float bottomY)
 {
-	float fPositions[4];
-	float fColours[4];
-	float fUVs[2];
-};
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* 4, NULL, GL_STATIC_DRAW);
+
+	myShape[0].fUVs[0] = bottomX; //top right
+	myShape[0].fUVs[1] = topY;
+	myShape[1].fUVs[0] = bottomX; //bottom right
+	myShape[1].fUVs[1] = bottomY;
+	myShape[2].fUVs[0] = topX; //bottom left
+	myShape[2].fUVs[1] = bottomY;
+	myShape[3].fUVs[0] = topX; //top left
+	myShape[3].fUVs[1] = topY;
+	
+
+	//allocate space on graphics card
+	GLvoid* vBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	// copy data to graphics card 
+	memcpy(vBuffer, myShape, sizeof(Vertex)* 4);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void MoveSprite(uint spriteId, float x, float y)
+{
+	//glm::mat4 matrix;
+	//matrix[0].z = x;
+	//matrix[1].z = y;
+	//glm::vec3 vector;
+	//vector.x = 2/*position[0].x*/;
+	//vector.y = 5/*position[0].y*/;
+	//glm::mat4 result = glm::translate(matrix, vector);  //takes in a mat4 and vec3
+	for (int i = 0; i < 4; i++)
+	{
+		myShape[i].fPositions[0] += x;
+		myShape[i].fPositions[1] += y;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* 4, NULL, GL_STATIC_DRAW);
+
+	//allocate space on graphics card
+	GLvoid* vBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	// copy data to graphics card 
+	memcpy(vBuffer, myShape, sizeof(Vertex)* 4);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
 int main()
 {
@@ -214,8 +270,9 @@ int main()
 		return -1;
 	}
 
-	Vertex* myShape = new Vertex[4];
-	myShape[0].fPositions[0] = 1024 / 2.0 + 100.0f;    //top right
+	
+	
+	myShape[0].fPositions[0] = 1024 / 2.0 + 100.0f;  //top right
 	myShape[0].fPositions[1] = 720 / 2.0 + 100.0f;
 	myShape[1].fPositions[0] = 1024 / 2.0 + 100.0;  //bottom right
 	myShape[1].fPositions[1] = 720 / 2.0 - 100.0f;
@@ -242,10 +299,26 @@ int main()
 	myShape[3].fUVs[0] = 0.0f; //top left
 	myShape[3].fUVs[1] = 1.0f;
 
+	//pos data into pos vec
+	for (int i = 0; i < 4; i++)
+	{
+		position[i].x = myShape[i].fPositions[0];
+		position[i].y = myShape[i].fPositions[1];
+		position[i].z = myShape[i].fPositions[2];
+		position[i].w = myShape[i].fPositions[3];
+	}
+
+	//uv data into uv vec
+	for (int i = 0; i < 4; i++)
+	{
+		UVs[i].x = myShape[i].fUVs[0];
+		UVs[i].y = myShape[i].fUVs[1];
+	}
+
 	//srand(time(NULL));
 	//Stars bg(10);
 	
-	GLuint VBO, IBO;
+	
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &IBO);
 
@@ -288,6 +361,8 @@ int main()
 	int width = 50, height = 50, bpp = 4;    
 	GLuint uiTextureId = loadTexture("smile.png", width, height, bpp);
 
+	//GLuint test = loadTexture("smile.png", width, height, bpp);
+
 	//create shader program
 	GLuint uiProgramFlat = CreateProgram("VertexShader.glsl", "FlatFragmentShader.glsl");
 
@@ -300,7 +375,8 @@ int main()
 	//set up the mapping of the screen to pixel co-ordinates. Try changing these values to see what happens.
 	float *orthographicProjection = getOrtho(0, 1024, 0, 720, 0, 100);
 
-
+	MoveSprite(uiTextureId, 200,200);
+	SetUVs(uiTextureId, 0, 1, 0.5f, 0);
 
 	//loop until window closes
 	while (!glfwWindowShouldClose(window))
